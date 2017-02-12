@@ -2,6 +2,7 @@
 
 use warnings;
 use strict;
+
 use Config::Simple;
 use FindBin;
 use Test::More tests => 2;
@@ -10,29 +11,34 @@ sub test_parameters_names; sub test_file_existence; sub test_syntax;
 sub test_paths_existence; sub load_cfg; sub test_mysql_config; 
 
 my @required_pars = qw/TMP_BACKUP LOG_FILE ENCRYPT_KEY FOLDERS_TO_BACKUP/;
-my $cfile = "../.backupcfg";
+# my $cfile = "../.backupcfg";
+my $rootConfigFilePath = "/root/.backupcfg";
 my $abs_path = $FindBin::RealBin.'/';
-my %cfg;
+
 
 # push the path of tests modules
-push @INC, $abs_path."tests";
+push @INC, $abs_path;
 
 # import testing modules
 require MySql::Test;
 require MEGA::Test;
 
+my %cfg;
 
-my $cfg_exist = ok(test_file_existence($abs_path.$cfile), "Config file existence");
+my $cfg_exist = is(test_file_existence($rootConfigFilePath),1, "Config file existence");
+
 subtest 'Config File Test'  => sub {
+    
     plan 'skip_all' unless $cfg_exist;
-    load_cfg $abs_path.$cfile, \%cfg if $cfg_exist;
-    ok(test_parameters_names( \%cfg,\@required_pars),'Check Parameters Names');
-    ok(test_syntax(\%cfg),"Syntax Check");
-    ok(test_paths_existence(\%cfg),'Paths Verification'); 
+    load_cfg $rootConfigFilePath, \%cfg if $cfg_exist;
+    
+    is(test_parameters_names( \%cfg,\@required_pars),1,'Check Parameters Names');
+    is(test_syntax(\%cfg),1,"Paths Syntax Check");
+    is(test_paths_existence(\%cfg),1,'Paths Verification'); 
 
-    my $rootcpath = $cfg{"ROOT_CONFIG"};
-    my $proceed = ok(test_file_existence($cfg{"ROOT_CONFIG"}),"Root Config Existence");
-    load_cfg ($cfg{"ROOT_CONFIG"}, \%cfg) if $proceed;
+    # my $rootcpath = $cfg{"ROOT_CONFIG"};
+    # my $proceed = ok(test_file_existence($cfg{"ROOT_CONFIG"}),"Root Config Existence");
+    # load_cfg ($cfg{"ROOT_CONFIG"}, \%cfg) if $proceed;
     
     ok(MEGA::Test::test_mega(), "Connection to mega.nz");
     test_mysql_config(\%cfg);
@@ -41,25 +47,19 @@ subtest 'Config File Test'  => sub {
 exit 0;
 
 
-
-
 ############################################################################################
 ######################################### SUB-ROUTINES #####################################
 ############################################################################################
 
 
-# Tests if the configuration file exists and is on the proper folder
+# Tests if the passed file exists and is a plain file.
 sub test_file_existence {
-  my $abs_path = shift or die;
-  if (-e $abs_path){
-    #print "Configuration file exists, ===>>> TEST PASSED!\n";
-    return "true";
-  } else {
-    print ".backupcfg file does not exists or misplaced, TEST NOT PASSED!\n";
-    return "false";
-  }
-}
 
+    my $abs_path = shift or die;
+
+    return 1 if ( -f $abs_path);
+    return 0;
+}
 
 
 # Tests if all required parameter names are on the .backupcfg file
@@ -69,14 +69,11 @@ sub test_parameters_names {
     for my $par (@required_pars){
         if (!exists $cfg{$par}) {
             print "Missing configuration for $par in .backupconf, TEST NOT PASSED!\n";
-            return "false";
+            return 0;
         }
-        #print "Parameter name: $par is .... OK!\n";
     }
-    #print "Parameters names ok, ===>>> TEST PASSED!\n"
-    return "true";
+    return 1;
 }
-
 
 
 # Mostly Useless
@@ -87,14 +84,13 @@ sub test_syntax {
     $cfg{$_} = $_ for @array_of_paths;
 
     while (my($key, $val) = each %cfg) {
-        if ($val !~ m#^(/\w+)(/\S+)*$#) {
-            print "'$val' is a malformed path for key $key\n";
-            return "false";
+        if ($val !~ m#^(/\w+)(/\S+)*$#) {  
+            print "'$val' is a malformed absolute path for key $key\n";
+            return 0;
         }
     }
-    return "true";
+    return 1;
 }
-
 
 
 # Checks if the paths to file and folders exist
@@ -103,16 +99,14 @@ sub test_paths_existence {
     $cfg{"FOLDERS_TO_BACKUP"} = [split / /, $cfg{"FOLDERS_TO_BACKUP"}];
     my @array_of_paths = @{delete $cfg{"FOLDERS_TO_BACKUP"}};
     push @array_of_paths, (values %cfg);
-    print @array_of_paths;
+    # print @array_of_paths;
     for (@array_of_paths){
-        if (!-d $_ and !-e $_){
+        if (!-e $_){
             print "path '$_' does not exists, TEST NOT PASSED!\n";
-            return "false";
+            return 0;
         }
-    #print "Path $_ exists .... OK!\n"
     }
-    #print "All paths exist, ===>>> TEST PASSED!\n";
-    return "true";
+    return 1;
 }
 
 

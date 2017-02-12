@@ -1,3 +1,4 @@
 .backupcfg
 *.swp
 backup_OLD.sh
+tests/fake
