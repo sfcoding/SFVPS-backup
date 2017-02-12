@@ -5,7 +5,8 @@ use strict;
 use Config::Simple;
 use Capture::Tiny 'capture_merged';
 
-sub load_cfg; sub perform_tests;
+#sub load_cfg; 
+sub perform_tests;
 
 # Launches Tests on configuration files;
 my $actual_time = localtime();
@@ -15,12 +16,13 @@ my $actual_time = localtime();
 perform_tests;
 
 my %cfg;
-load_cfg;
 
-sub load_cfg {
-  Config::Simple->import_from(".backupcfg",\%cfg);
-  $cfg{"FOLDERS_TO_BACKUP"} = [split / /, $cfg{"FOLDERS_TO_BACKUP"}];
-}
+#load_cfg;
+
+#sub load_cfg {
+#  Config::Simple->import_from(".backupcfg",\%cfg);
+#  $cfg{"FOLDERS_TO_BACKUP"} = [split / /, $cfg{"FOLDERS_TO_BACKUP"}];
+#}
 
 sub perform_tests {
 
