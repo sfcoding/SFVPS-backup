@@ -24,12 +24,12 @@ sub load_cfg {
 
 sub perform_tests {
 
-  open LOGF, ">>/var/log/backup-mega.log" or die "Could not open the log file $!\n";
+  open LOGF, ">>/var/log/backup-mega.log" or die "Could not open the log file: $!\n";
     print LOGF "\n\n\t************** #### **************\n";
     print LOGF "STARTING NEW BACKUP TEST: $actual_time\n";
     print LOGF "\t************** #### **************\n";
     print LOGF capture_merged { system("perl","tests/config_files_test.pl")};
-  close LOGF or die "Could not close the log file $!\n";
+  close LOGF or die "Could not close the log file: $!\n";
 
   if ($?>>8 != 0){
     print "\nErrors encountered while performing tests, exit.\n";
