@@ -2,6 +2,7 @@
 
 use warnings;
 use strict;
+
 use Config::Simple;
 use Capture::Tiny 'capture_merged';
 
@@ -39,8 +40,9 @@ sub perform_tests {
 
   if ($?>>8 != 0){
     print "\nErrors encountered while performing tests, exit.\n";
+    system("perl","PerlEmail.pl");
     exit 5;
   } else {
-    print "All test passed succesfully! Proceding with the backup.\n"
+    print "All test passed succesfully! You can proceed with a safe backup.\n"
   }
 }
