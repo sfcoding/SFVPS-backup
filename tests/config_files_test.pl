@@ -33,8 +33,13 @@ subtest 'Config File Test'  => sub {
     load_cfg $rootConfigFilePath, \%cfg if $cfg_exist;
     
     is(test_parameters_names( \%cfg,\@required_pars),1,'Check Parameters Names');
+    
+    my $pwd = delete $cfg{"MYSQL_PWD"};  
+
     is(test_syntax(\%cfg),1,"Paths Syntax Check");
     is(test_paths_existence(\%cfg),1,'Paths Verification'); 
+
+    $cfg{"MYSQL_PWD"} = $pwd; 
 
     # my $rootcpath = $cfg{"ROOT_CONFIG"};
     # my $proceed = ok(test_file_existence($cfg{"ROOT_CONFIG"}),"Root Config Existence");
