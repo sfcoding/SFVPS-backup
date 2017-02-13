@@ -5,6 +5,10 @@ use strict;
 
 use Config::Simple;
 use Capture::Tiny 'capture_merged';
+use FindBin;
+
+
+my $abs_path = $FindBin::RealBin.'/';
 
 #sub load_cfg; 
 sub perform_tests;
@@ -31,7 +35,7 @@ sub perform_tests {
     print LOGF "\n\n\t************** #### **************\n";
     print LOGF "STARTING NEW BACKUP TEST: $actual_time\n";
     print LOGF "\t************** #### **************\n";
-    print LOGF capture_merged { system("perl","tests/config_files_test.pl")};
+    print LOGF capture_merged { system("perl",$abs_path."tests/config_files_test.pl")};
     print LOGF "\n\n\t************** #### **************\n";
     print LOGF "FINISHED BACKUP TEST: $actual_time\n";
     print LOGF "\t************** #### **************\n\n";
@@ -40,7 +44,7 @@ sub perform_tests {
 
   if ($?>>8 != 0){
     print "\nErrors encountered while performing tests, exit.\n";
-    system("perl","PerlEmail.pl");
+    system("perl",$abs_path."PerlEmail.pl");
     exit 5;
   } else {
     print "All test passed succesfully! You can proceed with a safe backup.\n"
