@@ -44,7 +44,7 @@ sub perform_tests {
 
   if ($?>>8 != 0){
     print "\nErrors encountered while performing tests, exit.\n";
-    system("perl",$abs_path."PerlEmail.pl");
+    system("perl",$abs_path."utils/PerlEmail.pl");
     exit 5;
   } else {
     print "All test passed succesfully! You can proceed with a safe backup.\n"
