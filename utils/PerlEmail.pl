@@ -49,6 +49,7 @@ sub load_email_addresses {
 
 sub sendmail {
 
+	my $logs = `tail -50 /var/log/backup-mega-test.log`
 
 	my $from = 'no-reply@sfcoding.com';
 	my $subject = '[SFvps] BACKUP TESTS FAILED';
@@ -56,7 +57,7 @@ sub sendmail {
 	"Hi $name! This message was sent to notify the System Admin.\n\n
 	Possibly some tests about backups on MEGA have failed :(\n\n
 	Please check /var/log/backup-mega-test.log on the vps for further details.\n\n
-	Cheers\n";
+	Cheers\n\n P.s.: hereby an extract of the log\n\n$logs";
 	 
 	open(MAIL, "|/usr/sbin/sendmail -t");
 	 
