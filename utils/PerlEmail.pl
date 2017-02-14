@@ -3,24 +3,28 @@
 use warnings;
 use strict;
 
-sub load_email_addresses; sub sendmail;
+sub load_email_addresses; sub sendmail; sub main;
 
 my $to = 'address1@gmail.com,address2@gmail.com,address3@studenti.unitn.it';
 
 my %dest;
 my $name;
 
-load_email_addresses;
+main;
 
-for (keys %dest) {
+sub main {
 
-	$name = $_;
-	$to = $dest{$_};
-	sendmail;
+	load_email_addresses;
 
-} 
+	for (keys %dest) {
 
- 
+		$name = $_;
+		$to = $dest{$_};
+		sendmail;
+
+	} 
+}
+
 
 sub load_email_addresses {
 
