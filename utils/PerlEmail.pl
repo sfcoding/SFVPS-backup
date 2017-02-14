@@ -5,7 +5,9 @@ use strict;
 
 sub load_email_addresses; sub sendmail; sub main;
 
-my $to = 'address1@gmail.com,address2@gmail.com,address3@studenti.unitn.it';
+my $cfile = "/root/.mailbotrc";
+my $logfile = "/var/log/backup-mega-test.log";
+# my $to = 'address1@gmail.com,address2@gmail.com,address3@gmail.it';
 
 my %dest;
 my $name;
@@ -28,20 +30,20 @@ sub main {
 
 sub load_email_addresses {
 
-	open FILE, "</root/.mailbotrc" or die "Could not open config file$!";
+	open CFILE, "<$cfile" or die "Could not open config file$!";
 	
-	while (<FILE>) {
+	while (<CFILE>) {
 
 		if ($_ !~ /^\s*#/) {
 			my @fields = split /:/ ;
-			$dest{$fields[0]} = $fields[1]  if $_ !~ /^\s*#/;		
+			$dest{$fields[0]} = $fields[1];		
 		}
 		
 	}
 
-	close FILE or die "Could not close config file$!";
+	close CFILE or die "Could not close config file$!";
 	
-	print "$_ : $dest{$_}\n" for (keys %dest);
+	# print "$_ : $dest{$_}\n" for (keys %dest);
 
 }
 
@@ -49,7 +51,7 @@ sub load_email_addresses {
 
 sub sendmail {
 
-	my $logs = `tail -50 /var/log/backup-mega-test.log`;
+	my $logs = `tail -50 $logfile`;
 
 	my $from = 'no-reply@sfcoding.com';
 	my $subject = '[SFvps] BACKUP TESTS FAILED';
