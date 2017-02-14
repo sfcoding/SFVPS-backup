@@ -3,24 +3,68 @@
 use warnings;
 use strict;
 
-my $to = 'andreagalloni92@gmail.com,lucarin91@gmail.com,andrea.galloni@studenti.unitn.it';
-my $from = 'no-reply@sfcoding.com';
-my $subject = '[SFvps] BACKUP TESTS FAILED';
-my $message =  
-"This message was sent to notify the System Admin.\n\n
-Possibly some tests about backups on MEGA have failed :(\n\n
-Please check /var/log/backup-mega-test.log on the vps for further details.\n\n
-Cheers\n";
- 
-open(MAIL, "|/usr/sbin/sendmail -t");
- 
-# Email Header
-print MAIL "To: $to\n";
-print MAIL "From: $from\n";
-print MAIL "Subject: $subject\n\n";
+sub load_email_addresses; sub sendmail;
 
-# Email Body
-print MAIL $message;
+my $to = 'address1@gmail.com,address2@gmail.com,address3@studenti.unitn.it';
 
-close(MAIL);
-print "Admin Email Sent Successfully\n";
+my %dest;
+my $name;
+
+load_email_addresses;
+
+for (keys %dest) {
+
+	$name = $_;
+	$to = $dest{$_};
+	sendmail;
+
+} 
+
+ 
+
+sub load_email_addresses {
+
+	open FILE, "</root/.mailbotrc" or die "Could not open config file$!";
+	
+	while (<FILE>) {
+
+		if ($_ !~ /^\s*#/) {
+			my @fields = split /:/ ;
+			$dest{$fields[0]} = $fields[1]  if $_ !~ /^\s*#/;		
+		}
+		
+	}
+
+	close FILE or die "Could not close config file$!";
+	
+	print "$_ : $dest{$_}\n" for (keys %dest);
+
+}
+
+
+
+sub sendmail {
+
+
+	my $from = 'no-reply@sfcoding.com';
+	my $subject = '[SFvps] BACKUP TESTS FAILED';
+	my $message =  
+	"Hi $name! This message was sent to notify the System Admin.\n\n
+	Possibly some tests about backups on MEGA have failed :(\n\n
+	Please check /var/log/backup-mega-test.log on the vps for further details.\n\n
+	Cheers\n";
+	 
+	open(MAIL, "|/usr/sbin/sendmail -t");
+	 
+	# Email Header
+	print MAIL "To: $to\n";
+	print MAIL "From: $from\n";
+	print MAIL "Subject: $subject\n\n";
+
+	# Email Body
+	print MAIL $message;
+
+	close(MAIL);
+	print "Admin Email Sent Successfully\n";
+
+}
