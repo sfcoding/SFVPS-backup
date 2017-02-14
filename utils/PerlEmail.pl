@@ -49,7 +49,7 @@ sub load_email_addresses {
 
 sub sendmail {
 
-	my $logs = `tail -50 /var/log/backup-mega-test.log`
+	my $logs = `tail -50 /var/log/backup-mega-test.log`;
 
 	my $from = 'no-reply@sfcoding.com';
 	my $subject = '[SFvps] BACKUP TESTS FAILED';
