@@ -7,7 +7,7 @@ sub load_email_addresses; sub sendmail; sub main;
 
 my $cfile = "/root/.mailbotrc";
 my $logfile = "/var/log/backup-mega-test.log";
-my $to # my $to = 'address1@gmail.com,address2@gmail.com,address3@gmail.it';
+my $to; # my $to = 'address1@gmail.com,address2@gmail.com,address3@gmail.it';
 
 my %dest;
 my $name;
