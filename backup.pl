@@ -20,28 +20,32 @@ my $archive_file = getArchiveName;
 
 
 
-print "[ LOG ] Loading Configuration File";
+print "[ LOG ] Loading Configuration File\n";
 load_cfg;
-print "[ LOG ] Performing MySQL Dump";
+
+
+my $tmp_MySQL = "$cfg{'TMP_BACKUP'}/mysql-backup.sql";   
+my $tmp_MongoDB = "$cfg{'TMP_BACKUP'}/mongo_bck";
+
+print "[ LOG ] Performing MySQL Dump\n";
 mySqlDump;
-print "[ LOG ] Performing Mongo Dump";
+print "[ LOG ] Performing Mongo Dump\n";
 mongoDump;
 
 print "[ LOG ] Creating Archive: $cfg{'TMP_BACKUP'}$archive_file\n";
 compressFiles;
 
-print "[ LOG ] Getting MEGA Free Space";
+print "[ LOG ] Getting MEGA Free Space\n";
 freeSpaceOnMega;
 print "[ LOG ] Uploading $archive_file on MEGA\n";
 uploadOnMega;
 print "[ LOG ] DONE upload on MEGA!\n";
-
+print "[ LOG ] Cleaning Up...";
 print "@{$cfg{'FOLDERS_TO_BACKUP'}}";
 
 
 sub mySqlDump {
 
-    my $tmp_MySQL = $cfg{"TMP_BACKUP"}."/mysql-backup.sql";   
     `mysqldump --user=root --password=$cfg{"MYSQL_PWD"} --all-databases > $tmp_MySQL`; 
     addToBackup("FOLDERS_TO_BACKUP",$tmp_MySQL);
 
@@ -49,7 +53,6 @@ sub mySqlDump {
 
 sub mongoDump {
 
-    my $tmp_MongoDB = $cfg{"TMP_BACKUP"}."/mongo_bck";
     `mongodump --out $tmp_MongoDB >/dev/null 2>&1`;
     addToBackup("FOLDERS_TO_BACKUP",$tmp_MongoDB);
 
@@ -135,15 +138,21 @@ sub freeSpaceOnMega {
 
 sub uploadOnMega {
 
-	open my $in, "megaput --path /Root/sf-backup $cfg{'TMP_BACKUP'}/$archive_file |";
+	#open my $in, "megaput --path /Root/sf-backup $cfg{'TMP_BACKUP'}/$archive_file |";
+	#while (my $l = <$in>) {
+	#	print "$l\r";
+	#}
+	#close $in;
 
-	while (my $l = <$in>) {
-		print "$l\r";
-	}
+	# Using open to show the progress bar of megaput.
+	`megaput --path /Root/sf-backup $cfg{'TMP_BACKUP'}/$archive_file`;
 
-	close $in;
+}
 
-	# print `megaput --path /Root/sf-backup $cfg{'TMP_BACKUP'}/$archive_file`;
+sub cleanUp {
+
+	`rm -v $tmp_MySQL $cfg['TMP_BACKUP']/$archive_file`;
+	`rm -v $tmp_MySQL`;
 
 }
 
