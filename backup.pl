@@ -9,16 +9,20 @@ sub load_cfg; sub mySqlDump;
 sub addToBackup; sub mongoDump;
 sub getDate; sub getHost;
 sub getArchiveName; sub compressFiles;
-
+sub getMegaFreeSpace; sub getArchiveSize;
+sub getOldestBackup;
 
 my %cfg;
 
 load_cfg;
-mySqlDump;
-mongoDump;
-print getArchiveName."\n"; 
-compressFiles;
+#mySqlDump;
+#mongoDump;
+#print getArchiveName."\n"; 
+#compressFiles;
 
+#getMegaFreeSpace;
+#getArchiveSize;
+getOldestBackup;
 
 print "@{$cfg{'FOLDERS_TO_BACKUP'}}";
 
@@ -33,7 +37,7 @@ sub mySqlDump {
 sub mongoDump {
 
     my $tmp_MongoDB = $cfg{"TMP_BACKUP"}."/mongo_bck";
-    `mongodump --out $tmp_MongoDB &>/dev/null`;
+    `mongodump --out $tmp_MongoDB >/dev/null 2>&1`;
     addToBackup("FOLDERS_TO_BACKUP",$tmp_MongoDB);
 
 }
@@ -79,5 +83,25 @@ sub compressFiles {
     my $archive_file = getArchiveName;
 
     `tar cz @{$cfg{'FOLDERS_TO_BACKUP'}} | openssl enc -aes-256-cbc -salt -out $cfg{'TMP_BACKUP'}/$archive_file -pass file:$cfg{'ENCRYPT_KEY'}`;
+
+}
+
+sub getMegaFreeSpace{
+
+	(split("Free:  ",(split("\n",`megadf`))[2]))[1];
+	
+}
+
+sub getArchiveSize {
+
+	my $archivePath = $cfg{'TMP_BACKUP'}."/".getArchiveName;	
+	`stat --printf="%s" $archivePath`;
+
+}
+
+sub getOldestBackup {
+	
+	# megals | awk '/Root\/sf-backup\//' | head -1 -
+	print `megals | awk '/Root\\/sf-backup\\//' | head -1 -`;
 
 }
