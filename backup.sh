@@ -7,7 +7,7 @@ TMP_BACKUP="/tmp"
 LOG_FILE="/var/log/backup-mega.log"
 DESTINATION="/mnt/mega/backup"
 ENCRYPT_KEY="/root/key.bin"
-#FOLDER_TO_BACKUP="/home/luca /home/dido /home/alexander /etc/nginx /var/www /var/ftp"
+FOLDER_TO_BACKUP="/home/luca /home/dido /home/alexander /etc/nginx /var/www /var/ftp"
 #****
 
 
@@ -20,8 +20,8 @@ ENCRYPT_KEY="/root/key.bin"
 MySQLpwd=$(awk '/MySQLpwd/ {split($0,a,":"); print a[2]}' /root/.backupconf)
 
 # DUMP ALL MySQL DATABASES
-
-printf "\n[DOING ] CREATING MY-SQL DUMP @ $TMP_BACKUP/mysql-backup.sql \n"
+date
+printf "\n[ DOING ] CREATING MY-SQL DUMP @ $TMP_BACKUP/mysql-backup.sql \n"
 tmp_MySQL=$TMP_BACKUP"/mysql-backup.sql"
 mysqldump --user=root --password=$MySQLpwd --all-databases > $tmp_MySQL
 FOLDER_TO_BACKUP=$FOLDER_TO_BACKUP" "$tmp_MySQL
@@ -111,3 +111,4 @@ date
 #	[DONE] find a solution for the hardcoded mysql paswd
 #	[DONE]- Remove old backups from the server
 # 	[DONE]- write a script that downloads the last backup, decrypts and uncompresses it on a specific folder
+
