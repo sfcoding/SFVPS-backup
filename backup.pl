@@ -11,7 +11,7 @@ sub getDate; sub getHost;
 sub getArchiveName; sub compressFiles;
 sub getMegaFreeSpace; sub getArchiveSize;
 sub getOldestBackup; sub freeSpaceOnMega;
-sub uploadOnMega;
+sub uploadOnMega; sub cleanUp;
 
 
 my %cfg;
@@ -42,7 +42,7 @@ uploadOnMega;
 print "[ LOG ] DONE upload on MEGA!\n";
 print "[ LOG ] Cleaning Up...";
 print "@{$cfg{'FOLDERS_TO_BACKUP'}}";
-
+cleanUp;
 
 sub mySqlDump {
 
@@ -151,8 +151,8 @@ sub uploadOnMega {
 
 sub cleanUp {
 
-	`rm -v $tmp_MySQL $cfg['TMP_BACKUP']/$archive_file`;
-	`rm -v $tmp_MySQL`;
+	print `rm -v $tmp_MySQL $cfg{'TMP_BACKUP'}/$archive_file`;
+	print `rm -rv $tmp_MongoDB`;
 
 }
 
