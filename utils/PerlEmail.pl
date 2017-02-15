@@ -1,7 +1,21 @@
 #!/usr/bin/perl
 
+#
+#	This perl script is supposed to send an email to System Administrators
+#	whenever something goes wrong with backup tests. 
+#	the mail addresses list is loaded from: "/root/.mailbotrc"
+#
+#	Details about the config file can be found at the bottom of this file.
+#
+#	@Author: Andrea Galloni
+#	@E-Mail: andreagalloni92[aaatttt]gmail[doooottt]com		
+#	@License: No-License and NO WARRANTY.
+#
+
+
 use warnings;
 use strict;
+
 
 sub load_email_addresses; sub sendmail; sub main;
 
@@ -55,6 +69,7 @@ sub sendmail {
 
 	my $from = 'no-reply@sfcoding.com';
 	my $subject = '[SFvps] BACKUP TESTS FAILED';
+
 	my $message =  
 	"Hi $name! This message was sent to notify the System Admin.\n\n
 	Possibly some tests about backups on MEGA have failed :(\n\n
@@ -75,3 +90,19 @@ sub sendmail {
 	print "Admin Email Sent Successfully\n";
 
 }
+
+
+#
+#	The configuration file has to be placed at: "/root/.mailbotrc"
+#	the file have to be compliant to the following schema:
+#		
+#		# lines STARTING with hash will be ignored  
+#
+#		AdminFirstName:email@address.smth
+#
+#		e.g.: 
+#
+#		# this is a config file and this is a comment
+#		Andrea:andrea@gmail.com
+#		Luca:luca@gmail.com
+#
