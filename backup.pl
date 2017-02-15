@@ -127,7 +127,7 @@ sub freeSpaceOnMega {
 
 sub uploadOnMega {
 	
-	`megaput --path /Root/sf-backup $cfg{'TMP_BACKUP'}/$archive_file`;
+	print `megaput --path /Root/sf-backup $cfg{'TMP_BACKUP'}/$archive_file`;
 
 }
 
