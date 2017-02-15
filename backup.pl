@@ -10,9 +10,13 @@ sub addToBackup; sub mongoDump;
 sub getDate; sub getHost;
 sub getArchiveName; sub compressFiles;
 sub getMegaFreeSpace; sub getArchiveSize;
-sub getOldestBackup;
+sub getOldestBackup; sub freeSpaceOnMega;
+sub uploadOnMega;
+
 
 my %cfg;
+
+my $archive_file = getArchiveName;
 
 load_cfg;
 #mySqlDump;
@@ -22,7 +26,10 @@ load_cfg;
 
 #getMegaFreeSpace;
 #getArchiveSize;
-getOldestBackup;
+#getOldestBackup;
+#freeSpaceOnMega;
+
+uploadOnMega;
 
 print "@{$cfg{'FOLDERS_TO_BACKUP'}}";
 
@@ -79,8 +86,6 @@ sub getArchiveName {
 
 
 sub compressFiles {
-    
-    my $archive_file = getArchiveName;
 
     `tar cz @{$cfg{'FOLDERS_TO_BACKUP'}} | openssl enc -aes-256-cbc -salt -out $cfg{'TMP_BACKUP'}/$archive_file -pass file:$cfg{'ENCRYPT_KEY'}`;
 
@@ -94,7 +99,7 @@ sub getMegaFreeSpace{
 
 sub getArchiveSize {
 
-	my $archivePath = $cfg{'TMP_BACKUP'}."/".getArchiveName;	
+	my $archivePath = $cfg{'TMP_BACKUP'}."/$archive_file";	
 	`stat --printf="%s" $archivePath`;
 
 }
@@ -102,6 +107,28 @@ sub getArchiveSize {
 sub getOldestBackup {
 	
 	# megals | awk '/Root\/sf-backup\//' | head -1 -
-	print `megals | awk '/Root\\/sf-backup\\//' | head -1 -`;
+	`megals | awk '/Root\\/sf-backup\\//' | head -1 -`;
 
 }
+
+sub freeSpaceOnMega {
+
+	while ( getMegaFreeSpace() < getArchiveSize() ){
+		
+		my $oldestBKC = getOldestBackup;
+		print "[ WARNING ] Not enough space on MEGA...\n";
+		print "I need to remove older backups\n";
+		print "[ WARNING ] Removing: $oldestBKC";
+		`megarm $oldestBKC`;
+		print "Removed: $oldestBKC";
+		# sleep(10);
+
+	}
+}
+
+sub uploadOnMega {
+	
+	`megaput --path /Root/sf-backup $cfg{'TMP_BACKUP'}/$archive_file`;
+
+}
+
