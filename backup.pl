@@ -19,16 +19,15 @@ my %cfg;
 my $archive_file = getArchiveName;
 
 load_cfg;
-#mySqlDump;
-#mongoDump;
-#print getArchiveName."\n"; 
-#compressFiles;
+mySqlDump;
+mongoDump;
+print getArchiveName."\n"; 
+compressFiles;
 
-#getMegaFreeSpace;
-#getArchiveSize;
-#getOldestBackup;
-#freeSpaceOnMega;
-
+getMegaFreeSpace;
+getArchiveSize;
+getOldestBackup;
+freeSpaceOnMega;
 uploadOnMega;
 
 print "@{$cfg{'FOLDERS_TO_BACKUP'}}";
