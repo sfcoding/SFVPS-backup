@@ -18,19 +18,26 @@ my %cfg;
 
 my $archive_file = getArchiveName;
 
+
+
+print "[ LOG ] Loading Configuration File";
 load_cfg;
+print "[ LOG ] Performing MySQL Dump";
 mySqlDump;
+print "[ LOG ] Performing Mongo Dump";
 mongoDump;
-print getArchiveName."\n"; 
+
+print "[ LOG ] Creating Archive: $cfg{'TMP_BACKUP'}$archive_file\n";
 compressFiles;
 
-getMegaFreeSpace;
-getArchiveSize;
-getOldestBackup;
+print "[ LOG ] Getting MEGA Free Space";
 freeSpaceOnMega;
+print "[ LOG ] Uploading $archive_file on MEGA\n";
 uploadOnMega;
+print "[ LOG ] DONE upload on MEGA!\n";
 
 print "@{$cfg{'FOLDERS_TO_BACKUP'}}";
+
 
 sub mySqlDump {
 
@@ -117,17 +124,26 @@ sub freeSpaceOnMega {
 		my $oldestBKC = getOldestBackup;
 		print "[ WARNING ] Not enough space on MEGA...\n";
 		print "I need to remove older backups\n";
-		print "[ WARNING ] Removing: $oldestBKC";
+		print "[ WARNING ] Removing: $oldestBKC\n";
 		`megarm $oldestBKC`;
 		print "Removed: $oldestBKC";
 		# sleep(10);
 
 	}
+	print "[ LOG ] Enough Space on MEGA!\n";
 }
 
 sub uploadOnMega {
-	
-	print `megaput --path /Root/sf-backup $cfg{'TMP_BACKUP'}/$archive_file`;
+
+	open my $in, "megaput --path /Root/sf-backup $cfg{'TMP_BACKUP'}/$archive_file |";
+
+	while (my $l = <$in>) {
+		print "$l\r";
+	}
+
+	close $in;
+
+	# print `megaput --path /Root/sf-backup $cfg{'TMP_BACKUP'}/$archive_file`;
 
 }
 
