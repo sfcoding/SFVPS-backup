@@ -5,13 +5,11 @@ use strict;
 
 use Config::Simple;
 
-sub load_cfg; sub mySqlDump;
-sub addToBackup; sub mongoDump;
-sub getDate; sub getHost;
-sub getArchiveName; sub compressFiles;
-sub getMegaFreeSpace; sub getArchiveSize;
-sub getOldestBackup; sub freeSpaceOnMega;
-sub uploadOnMega; sub cleanUp;
+sub load_cfg; 			sub mySqlDump; 			sub addToBackup; 
+sub mongoDump; 			sub getDate; 			sub getHost;
+sub getArchiveName; 	sub compressFiles; 		sub getMegaFreeSpace; 
+sub getArchiveSize; 	sub getOldestBackup; 	sub freeSpaceOnMega; 
+sub uploadOnMega; 		sub cleanUp;
 
 
 my %cfg;
@@ -41,8 +39,10 @@ print "[ LOG ] Uploading $archive_file on MEGA\n";
 uploadOnMega;
 print "[ LOG ] DONE upload on MEGA!\n";
 print "[ LOG ] Cleaning Up...";
-print "@{$cfg{'FOLDERS_TO_BACKUP'}}";
 cleanUp;
+print "[ LOG ] Done Backup!\n";
+
+exit 0;
 
 sub mySqlDump {
 
@@ -102,13 +102,14 @@ sub compressFiles {
 
 sub getMegaFreeSpace{
 
+	# `megadf | awk 'NR==3 {print $2}'`;
 	(split("Free:  ",(split("\n",`megadf`))[2]))[1];
 	
 }
 
 sub getArchiveSize {
 
-	my $archivePath = $cfg{'TMP_BACKUP'}."/$archive_file";	
+	my $archivePath = "$cfg{'TMP_BACKUP'}/$archive_file";	
 	`stat --printf="%s" $archivePath`;
 
 }
@@ -121,6 +122,8 @@ sub getOldestBackup {
 }
 
 sub freeSpaceOnMega {
+	
+	my $attempts = 5;
 
 	while ( getMegaFreeSpace() < getArchiveSize() ){
 		
@@ -128,31 +131,51 @@ sub freeSpaceOnMega {
 		print "[ WARNING ] Not enough space on MEGA...\n";
 		print "I need to remove older backups\n";
 		print "[ WARNING ] Removing: $oldestBKC\n";
-		`megarm $oldestBKC`;
-		print "Removed: $oldestBKC";
-		# sleep(10);
 
+		`megarm $oldestBKC`;
+	
+		if (($? >> 8) == 0){
+
+			print "Removed: $oldestBKC";
+
+		} else {
+			
+			$attempts--;
+
+			sleep(30);
+			print "[ ERROR!!! ] megarm exit status != 0\n";
+				
+			if ($attempts == 0){
+		
+				print "[ WARNING ] Maximum number of attempts reached! exit.. \n";
+				exit 1;
+
+			}
+		}
 	}
+	
 	print "[ LOG ] Enough Space on MEGA!\n";
+
 }
 
 sub uploadOnMega {
 
-	#open my $in, "megaput --path /Root/sf-backup $cfg{'TMP_BACKUP'}/$archive_file |";
-	#while (my $l = <$in>) {
-	#	print "$l\r";
-	#}
-	#close $in;
-
-	# Using open to show the progress bar of megaput.
 	`megaput --path /Root/sf-backup $cfg{'TMP_BACKUP'}/$archive_file`;
+	
+	if (($? >> 8) != 0) {
 
+		print "[ ERROR!! ] Megaput exit status != 0!\n";
+		print "[ WARNING ] Backup will be temporary stored here: $cfg{'TMP_BACKUP'}/$archive_file\n";
+		print "exit...\n";
+		exit 1;
+		# notify_admins('megaput');
+
+	}
 }
 
 sub cleanUp {
 
-	print `rm -v $tmp_MySQL $cfg{'TMP_BACKUP'}/$archive_file`;
-	print `rm -rv $tmp_MongoDB`;
+	print `rm -rv $tmp_MongoDB $tmp_MySQL $cfg{'TMP_BACKUP'}/$archive_file`;
 
 }
 
