@@ -33,31 +33,31 @@ main();
 
 sub main {
 		
-		print "[ LOG ] Loading Configuration File\n";
-		
-		load_cfg;
-		$archive_file = getArchiveName;
-		$tmp_MySQL = "$cfg{'TMP_BACKUP'}/mysql-backup.sql";   
-		$tmp_MongoDB = "$cfg{'TMP_BACKUP'}/mongo_bck";
+	print getDate." [ LOG ] Loading Configuration File\n";
 
-		print "[ LOG ] Performing MySQL Dump\n";
-		mySqlDump;
-		print "[ LOG ] Performing Mongo Dump\n";
-		mongoDump;
+	load_cfg;
+	$archive_file = getArchiveName;
+	$tmp_MySQL = "$cfg{'TMP_BACKUP'}/mysql-backup.sql";   
+	$tmp_MongoDB = "$cfg{'TMP_BACKUP'}/mongo_bck";
 
-		print "[ LOG ] Creating Archive: $cfg{'TMP_BACKUP'}$archive_file\n";
-		compressFiles;
+	print getDate." [ LOG ] Performing MySQL Dump\n";
+	mySqlDump;
+	print getDate." [ LOG ] Performing Mongo Dump\n";
+	mongoDump;
 
-		print "[ LOG ] Getting MEGA Free Space\n";
-		freeSpaceOnMega;
-		print "[ LOG ] Uploading $archive_file on MEGA\n";
-		uploadOnMega;
-		print "[ LOG ] DONE upload on MEGA!\n";
-		print "[ LOG ] Cleaning Up...";
-		cleanUp;
-		print "[ LOG ] Done Backup!\n";
+	print getDate." [ LOG ] Creating Archive: $cfg{'TMP_BACKUP'}$archive_file\n";
+	compressFiles;
 
-		exit 0;
+	print getDate." [ LOG ] Getting MEGA Free Space\n";
+	freeSpaceOnMega;
+	print getDate." [ LOG ] Uploading $archive_file on MEGA\n";
+	uploadOnMega;
+	print getDate." [ LOG ] DONE upload on MEGA!\n";
+	print getDate." [ LOG ] Cleaning Up...\n";
+	cleanUp;
+	print getDate." [ LOG ] Done Backup!\n";
+
+	exit 0;
 
 }
 

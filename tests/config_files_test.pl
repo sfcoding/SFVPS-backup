@@ -7,23 +7,31 @@ use Config::Simple;
 use FindBin;
 use Test::More tests => 2;
 
-sub test_parameters_names; sub test_file_existence; sub test_syntax; 
-sub test_paths_existence; sub load_cfg; sub test_mysql_config; 
+# import testing modules
+
+require MySql::Test;
+require MEGA::Test;
+
+# *** SUB-ROUTINE *** #
+
+sub test_parameters_names; 	sub test_syntax; 	sub test_file_existence; 
+sub test_paths_existence; 	sub load_cfg; 		sub test_mysql_config; 
+
+# *** *** *** *** *** #
+
+# *** GLOBAL VARS *** #
+
+my %cfg;
 
 my @required_pars = qw/TMP_BACKUP LOG_FILE ENCRYPT_KEY FOLDERS_TO_BACKUP/;
-# my $cfile = "../.backupcfg";
 my $rootConfigFilePath = "/root/.backupcfg";
 my $abs_path = $FindBin::RealBin.'/';
 
+# *** *** *** *** *** #
 
 # push the path of tests modules
 push @INC, $abs_path;
 
-# import testing modules
-require MySql::Test;
-require MEGA::Test;
-
-my %cfg;
 
 my $cfg_exist = is(test_file_existence($rootConfigFilePath),1, "Config file existence");
 
@@ -103,6 +111,8 @@ sub test_paths_existence {
     my %cfg = %{+shift};
     $cfg{"FOLDERS_TO_BACKUP"} = [split / /, $cfg{"FOLDERS_TO_BACKUP"}];
     my @array_of_paths = @{delete $cfg{"FOLDERS_TO_BACKUP"}};
+    delete $cfg{"LOG_FILE"};
+    delete $cfg{"TEST_LOG_FILE"};
     push @array_of_paths, (values %cfg);
     # print @array_of_paths;
     for (@array_of_paths){
