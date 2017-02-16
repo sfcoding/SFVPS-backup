@@ -9,6 +9,10 @@ use Test::More tests => 2;
 
 # import testing modules
 
+my $abs_path = $FindBin::RealBin.'/';
+# push the path of tests modules
+push @INC, $abs_path;
+
 require MySql::Test;
 require MEGA::Test;
 
@@ -25,12 +29,9 @@ my %cfg;
 
 my @required_pars = qw/TMP_BACKUP LOG_FILE ENCRYPT_KEY FOLDERS_TO_BACKUP/;
 my $rootConfigFilePath = "/root/.backupcfg";
-my $abs_path = $FindBin::RealBin.'/';
 
 # *** *** *** *** *** #
 
-# push the path of tests modules
-push @INC, $abs_path;
 
 
 my $cfg_exist = is(test_file_existence($rootConfigFilePath),1, "Config file existence");
