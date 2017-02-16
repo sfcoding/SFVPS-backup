@@ -5,44 +5,63 @@ use strict;
 
 use Config::Simple;
 
+
+# *** SUB-ROUTINE *** #
+
 sub load_cfg; 			sub mySqlDump; 			sub addToBackup; 
 sub mongoDump; 			sub getDate; 			sub getHost;
 sub getArchiveName; 	sub compressFiles; 		sub getMegaFreeSpace; 
 sub getArchiveSize; 	sub getOldestBackup; 	sub freeSpaceOnMega; 
 sub uploadOnMega; 		sub cleanUp;
 
+# *** *** *** *** *** #
+
+# *** GLOBAL VARS *** #
 
 my %cfg;
 
-my $archive_file = getArchiveName;
+my $archive_file;
+my $tmp_MySQL;   
+my $tmp_MongoDB;
+
+# *** *** *** *** *** #
 
 
+main();
 
-print "[ LOG ] Loading Configuration File\n";
-load_cfg;
+# main subroutine;
 
+sub main {
+		
+		print "[ LOG ] Loading Configuration File\n";
+		
+		load_cfg;
+		$archive_file = getArchiveName;
+		$tmp_MySQL = "$cfg{'TMP_BACKUP'}/mysql-backup.sql";   
+		$tmp_MongoDB = "$cfg{'TMP_BACKUP'}/mongo_bck";
 
-my $tmp_MySQL = "$cfg{'TMP_BACKUP'}/mysql-backup.sql";   
-my $tmp_MongoDB = "$cfg{'TMP_BACKUP'}/mongo_bck";
+		print "[ LOG ] Performing MySQL Dump\n";
+		mySqlDump;
+		print "[ LOG ] Performing Mongo Dump\n";
+		mongoDump;
 
-print "[ LOG ] Performing MySQL Dump\n";
-mySqlDump;
-print "[ LOG ] Performing Mongo Dump\n";
-mongoDump;
+		print "[ LOG ] Creating Archive: $cfg{'TMP_BACKUP'}$archive_file\n";
+		compressFiles;
 
-print "[ LOG ] Creating Archive: $cfg{'TMP_BACKUP'}$archive_file\n";
-compressFiles;
+		print "[ LOG ] Getting MEGA Free Space\n";
+		freeSpaceOnMega;
+		print "[ LOG ] Uploading $archive_file on MEGA\n";
+		uploadOnMega;
+		print "[ LOG ] DONE upload on MEGA!\n";
+		print "[ LOG ] Cleaning Up...";
+		cleanUp;
+		print "[ LOG ] Done Backup!\n";
 
-print "[ LOG ] Getting MEGA Free Space\n";
-freeSpaceOnMega;
-print "[ LOG ] Uploading $archive_file on MEGA\n";
-uploadOnMega;
-print "[ LOG ] DONE upload on MEGA!\n";
-print "[ LOG ] Cleaning Up...";
-cleanUp;
-print "[ LOG ] Done Backup!\n";
+		exit 0;
 
-exit 0;
+}
+
+# DUMP ALL MySQL DATABASES
 
 sub mySqlDump {
 
@@ -51,12 +70,16 @@ sub mySqlDump {
 
 }
 
+# DUMP ALL MongoDB DATABASES
+
 sub mongoDump {
 
     `mongodump --out $tmp_MongoDB >/dev/null 2>&1`;
     addToBackup("FOLDERS_TO_BACKUP",$tmp_MongoDB);
 
 }
+
+# Load configuration file from the root's home
 
 sub load_cfg {
 
@@ -65,11 +88,15 @@ sub load_cfg {
 
 }
 
+# Add a file path to the folder-list to backup
+
 sub addToBackup {
 
     push @{$cfg{$_[0]}}, $_[1];
 
 }
+
+# Returns the date on a proper format
 
 sub getDate {
 
@@ -79,6 +106,8 @@ sub getDate {
 
 }
 
+# Returns the name of the host
+ 
 sub getHost {
 
     my $out = `hostname -s`;     
@@ -87,12 +116,15 @@ sub getHost {
 
 }
 
+# Creates the archive name based on date and host-name
+
 sub getArchiveName {
 
     getHost."-".getDate;
 
 }
 
+# Compress on a tar archive and encrypt it
 
 sub compressFiles {
 
@@ -100,12 +132,16 @@ sub compressFiles {
 
 }
 
+# Returns the free space on MEGA
+
 sub getMegaFreeSpace{
 
 	# `megadf | awk 'NR==3 {print $2}'`;
 	(split("Free:  ",(split("\n",`megadf`))[2]))[1];
 	
 }
+
+# Returns the size of the generated archive
 
 sub getArchiveSize {
 
@@ -120,6 +156,8 @@ sub getOldestBackup {
 	`megals | awk '/Root\\/sf-backup\\//' | head -1 -`;
 
 }
+
+# Checks if there is enough space on MEGA and eventually create it
 
 sub freeSpaceOnMega {
 	
@@ -158,6 +196,8 @@ sub freeSpaceOnMega {
 
 }
 
+# Upload the archive on MEGA
+
 sub uploadOnMega {
 
 	`megaput --path /Root/sf-backup $cfg{'TMP_BACKUP'}/$archive_file`;
@@ -172,6 +212,8 @@ sub uploadOnMega {
 
 	}
 }
+
+# Removes all the generated temp files
 
 sub cleanUp {
 
