@@ -221,3 +221,12 @@ sub cleanUp {
 
 }
 
+# TODO
+
+#
+#	- Setup parametrized PerlEmail
+#	- write a soubroutine for external commands checking if the exit code is 0
+#		and eventually send an email
+#   - Integrate the telegram bot
+#
+
