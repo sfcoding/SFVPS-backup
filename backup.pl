@@ -8,11 +8,11 @@ use Config::Simple;
 
 # *** SUB-ROUTINE *** #
 
-sub load_cfg; 			sub mySqlDump; 			sub addToBackup; 
-sub mongoDump; 			sub getDate; 			sub getHost;
+sub load_cfg; 		sub mySqlDump; 			sub addToBackup; 
+sub mongoDump; 		sub getDate; 			sub getHost;
 sub getArchiveName; 	sub compressFiles; 		sub getMegaFreeSpace; 
 sub getArchiveSize; 	sub getOldestBackup; 	sub freeSpaceOnMega; 
-sub uploadOnMega; 		sub cleanUp;
+sub uploadOnMega; 	sub cleanUp;
 
 # *** *** *** *** *** #
 
