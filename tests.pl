@@ -45,7 +45,7 @@ sub perform_tests {
     print LOGF "\n\n\t************** #### **************\n";
     print LOGF "STARTING NEW BACKUP TEST: $actual_time\n";
     print LOGF "\t************** #### **************\n";
-    print LOGF capture_merged { system("perl",$abs_path."tests/config_files_test.pl")};
+    print LOGF capture_merged { system($^X,$abs_path."tests/config_files_test.pl")};
     print LOGF "\n\n\t************** #### **************\n";
     $actual_time = localtime();
     print LOGF "FINISHED BACKUP TEST: $actual_time\n";
