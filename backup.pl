@@ -10,9 +10,9 @@ use Config::Simple;
 
 sub load_cfg; 		sub mySqlDump; 			sub addToBackup; 
 sub mongoDump; 		sub getDate; 			sub getHost;
-sub getArchiveName; 	sub compressFiles; 		sub getMegaFreeSpace; 
-sub getArchiveSize; 	sub getOldestBackup; 	sub freeSpaceOnMega; 
-sub uploadOnMega; 	sub cleanUp; sub execcommand; 
+sub getArchiveName;	sub compressFiles; 		sub getMegaFreeSpace; 
+sub getArchiveSize;	sub getOldestBackup; 	sub freeSpaceOnMega; 
+sub uploadOnMega; 	sub cleanUp;            sub execcommand; 
 sub mycback;
 
 # *** *** *** *** *** #
@@ -21,6 +21,7 @@ sub mycback;
 
 my %cfg;
 
+my $status = 0;
 my $archive_file;
 my $tmp_MySQL;   
 my $tmp_MongoDB;
@@ -58,7 +59,7 @@ sub main {
 	cleanUp;
 	print getDate." [ LOG ] Done Backup!\n";
 
-	exit 0;
+	exit $status;
 
 }
 
@@ -189,7 +190,7 @@ sub freeSpaceOnMega {
 			if ($attempts == 0){
 		
 				print "[ WARNING ] Maximum number of attempts reached! exit.. \n";
-				exit 1;
+				exit $status;
 
 			}
 		}
@@ -211,7 +212,7 @@ sub uploadOnMega {
 		print "[ ERROR!! ] Megaput exit status != 0!\n";
 		print "[ WARNING ] Backup will be temporary stored here: $cfg{'TMP_BACKUP'}/$archive_file\n";
 		print "exit...\n";
-		exit 1;
+		exit $status;
 
 	}
 }
@@ -234,13 +235,17 @@ sub execcommand {
 
     if ($?!=0) {
 
+        # On fail callback! :)
         $cback->($command,$?);
-                                    
+        $status = 1;                            
+
     }
 
     return ($?,$out);
 
 }
+
+# Handle command error, we can send an email, telegram msg or just log smth
 
 sub mycback {
 
