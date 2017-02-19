@@ -48,7 +48,7 @@ sub perform_tests {
     print LOGF capture_merged { system($^X,$abs_path."tests/config_files_test.pl")};
     print LOGF "\n\n\t************** #### **************\n";
     $actual_time = localtime();
-    print LOGF "FINISHED BACKUP TEST: $actual_time\n";
+    print LOGF "FINISHED BACKUP TEST:".localtime()."\n";
     print LOGF "\t************** #### **************\n\n";
 
   close LOGF or die "Could not close the log file: $!\n";
@@ -56,7 +56,7 @@ sub perform_tests {
   if ($?>>8 != 0){
 
     print "\nErrors encountered while performing tests, exit.\n";
-    system("perl",$abs_path."utils/PerlEmail.pl");
+    system($^X,$abs_path."utils/PerlEmail.pl");
     exit 5;
 
   } else {
