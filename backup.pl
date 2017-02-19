@@ -195,7 +195,7 @@ sub freeSpaceOnMega {
 		}
 	}
 	
-	print "[ LOG ] Enough Space on MEGA!\n";
+	print getDate."[ LOG ] Enough Space on MEGA!\n";
 
 }
 
@@ -247,6 +247,6 @@ sub mycback {
     my $command = shift;
     my $status  = shift; 
 
-    print "[ ERROR ] The following command exited with status != 0:\n$command\nstatus:$status\n";
+    print getDate."[ ERROR ] The following command exited with status != 0:\n$command\nstatus:$status\n";
 
 }
