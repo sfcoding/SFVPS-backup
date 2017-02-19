@@ -12,7 +12,8 @@ sub load_cfg; 		sub mySqlDump; 			sub addToBackup;
 sub mongoDump; 		sub getDate; 			sub getHost;
 sub getArchiveName; 	sub compressFiles; 		sub getMegaFreeSpace; 
 sub getArchiveSize; 	sub getOldestBackup; 	sub freeSpaceOnMega; 
-sub uploadOnMega; 	sub cleanUp;
+sub uploadOnMega; 	sub cleanUp; sub execcommand; 
+sub mycback;
 
 # *** *** *** *** *** #
 
@@ -65,7 +66,8 @@ sub main {
 
 sub mySqlDump {
 
-    `mysqldump --user=root --password=$cfg{"MYSQL_PWD"} --all-databases > $tmp_MySQL`; 
+    my $command = "mysqldump --user=root --password=$cfg{'MYSQL_PWD'} --all-databases > $tmp_MySQL"; 
+    execcommand($command,\&mycback);
     addToBackup("FOLDERS_TO_BACKUP",$tmp_MySQL);
 
 }
@@ -74,7 +76,8 @@ sub mySqlDump {
 
 sub mongoDump {
 
-    `mongodump --out $tmp_MongoDB >/dev/null 2>&1`;
+    my $command = "mongodump --out $tmp_MongoDB >/dev/null 2>&1";
+    execcommand($command,\&mycback);
     addToBackup("FOLDERS_TO_BACKUP",$tmp_MongoDB);
 
 }
@@ -170,9 +173,9 @@ sub freeSpaceOnMega {
 		print "I need to remove older backups\n";
 		print "[ WARNING ] Removing: $oldestBKC\n";
 
-		`megarm $oldestBKC`;
+		my ($status,$out) = execcommand("megarm $oldestBKC",\&mycback);
 	
-		if (($? >> 8) == 0){
+		if (($status) == 0){
 
 			print "Removed: $oldestBKC";
 
@@ -181,7 +184,7 @@ sub freeSpaceOnMega {
 			$attempts--;
 
 			sleep(30);
-			print "[ ERROR!!! ] megarm exit status != 0\n";
+			print "[ ERROR!!! ] megarm exit status != 0 $status\nOut:$out\n";
 				
 			if ($attempts == 0){
 		
@@ -200,15 +203,15 @@ sub freeSpaceOnMega {
 
 sub uploadOnMega {
 
-	`megaput --path /Root/sf-backup $cfg{'TMP_BACKUP'}/$archive_file`;
-	
-	if (($? >> 8) != 0) {
+	my $command = "megaput --path /Root/sf-backup $cfg{'TMP_BACKUP'}/$archive_file";
+	my ($status,$out) = execcommand($command,\&mycback);
+
+	if (($status) != 0) {
 
 		print "[ ERROR!! ] Megaput exit status != 0!\n";
 		print "[ WARNING ] Backup will be temporary stored here: $cfg{'TMP_BACKUP'}/$archive_file\n";
 		print "exit...\n";
 		exit 1;
-		# notify_admins('megaput');
 
 	}
 }
@@ -221,12 +224,29 @@ sub cleanUp {
 
 }
 
-# TODO
+# A bit of functional <3
 
-#
-#	- Setup parametrized PerlEmail
-#	- write a soubroutine for external commands checking if the exit code is 0
-#		and eventually send an email
-#   - Integrate the telegram bot
-#
+sub execcommand {
 
+    my $command = shift;
+    my $cback   = shift;
+    my $out = `$command`;
+
+    if ($?!=0) {
+
+        $cback->($command,$?);
+                                    
+    }
+
+    return ($?,$out);
+
+}
+
+sub mycback {
+
+    my $command = shift;
+    my $status  = shift; 
+
+    print "[ ERROR ] The following command exited with status != 0:\n$command\nstatus:$status\n";
+
+}
