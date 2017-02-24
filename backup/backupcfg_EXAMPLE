@@ -1,0 +1,35 @@
+# /root/.backuprc 
+#
+# Backup Script Configuration File
+# Parameters needed:
+#
+# + TMP_BACKUP
+#       - Path of the folder where temporary files are going to be stored.
+#
+# + LOG_FILE
+#       - Path of the log file.
+#
+# + TEST_LOG_FILE
+#       - Path of the test log file.
+#
+# + ENCRYPT_KEY
+#       - Path of the encryption key used to encrypt the archive file.
+#
+# + FOLDERS_TO_BACKUP
+#       - Paths of the folders to include in the backup.
+#
+# + ROOT_CONFIG
+#       - Path to the configuration path of root user, my contain passwords.
+#
+#      | == : SYNTAX : == |
+#        PARAMETER:"value"
+#
+
+TMP_BACKUP:"/tmp"
+LOG_FILE:"/var/log/backup-mega.log"
+TEST_LOG_FILE:"/var/log/backup-mega-test.log"
+ENCRYPT_KEY:"/root/encryption_key.bin"
+FOLDERS_TO_BACKUP:"/home/mario /home/dildo /home/lallero /etc/nginx /var/www /var/ftp"
+MYSQL_PWD:"MySQL_pwd"
+
+#ROOT_CONFIG:"/root/.simefilecfg"
