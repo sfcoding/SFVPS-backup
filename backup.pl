@@ -255,3 +255,14 @@ sub mycback {
     print getDate." [ ERROR ] The following command exited with status != 0:\n$command\nstatus:$status\n";
 
 }
+
+
+# TODO 
+
+#
+#	- proper handling of exit statuses
+#	- proper logging of backup.pl on a file like for tests
+#	- email sending for errors on backup.pl
+#	- telegram bot integration.
+#
+#
