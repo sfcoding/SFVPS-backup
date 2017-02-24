@@ -3,6 +3,11 @@
 use warnings;
 use strict;
 
+#
+#	Main script performing test and backups, it manages to log
+#	on proper files an handles notifications alerting admins. 
+#
+
 use Config::Simple;
 use Capture::Tiny 'capture_merged';
 use FindBin;
@@ -11,13 +16,14 @@ use FindBin;
 
 sub load_cfg; 
 sub perform_tests;
+sub perform_backup;
 
 # *** *** *** *** *** #
 
 # *** GLOBAL VARS *** #
 
 my $abs_path = $FindBin::RealBin.'/';
-my $actual_time = localtime();
+my $status = 0;
 my %cfg;
 
 # *** *** *** *** *** #
@@ -28,7 +34,8 @@ sub main {
 
     load_cfg;
     perform_tests;
-
+	perform_backup;
+	exit $status
 }
 
 sub load_cfg {
@@ -43,26 +50,56 @@ sub perform_tests {
   open LOGF, ">>$cfg{'TEST_LOG_FILE'}" or die "Could not open the log file: $!\n";
 
     print LOGF "\n\n\t************** #### **************\n";
-    print LOGF "STARTING NEW BACKUP TEST: $actual_time\n";
+    print LOGF "STARTING NEW BACKUP TEST:".localtime()."\n";
     print LOGF "\t************** #### **************\n";
     print LOGF capture_merged { system($^X,$abs_path."tests/config_files_test.pl")};
     print LOGF "\n\n\t************** #### **************\n";
-    $actual_time = localtime();
     print LOGF "FINISHED BACKUP TEST:".localtime()."\n";
     print LOGF "\t************** #### **************\n\n";
 
   close LOGF or die "Could not close the log file: $!\n";
 
-  if ($?>>8 != 0){
+  if ($? != 0){
 
     print "\nErrors encountered while performing tests, exit.\n";
     system($^X,$abs_path."utils/PerlEmail.pl");
-    exit 5;
+    $status = 5;
 
   } else {
 
     print "All test passed succesfully! You can proceed with a safe backup.\n";
-    exit 0;
+    $status = 0;
 
   }
+
+}
+
+
+sub perform_backup {
+
+  open LOGF, ">>$cfg{'LOG_FILE'}" or die "Could not open the log file: $!\n";
+
+    print LOGF "\n\n\t************** #### **************\n";
+    print LOGF "STARTING NEW BACKUP: ".localtime()."\n";
+    print LOGF "\t************** #### **************\n";
+    print LOGF capture_merged { system($^X,$abs_path."backup/backup.pl")};
+    print LOGF "\n\n\t************** #### **************\n";
+    print LOGF "FINISHED BACKUP: ".localtime()."\n";
+    print LOGF "\t************** #### **************\n\n";
+
+  close LOGF or die "Could not close the log file: $!\n";
+	
+  if ($? != 0){
+
+    print "\nErrors encountered while performing backups, exit.\n";
+    system($^X,$abs_path."utils/PerlEmail.pl");
+    $status = 5;
+
+  } else {
+
+    print "Backup completed succesfully!\n";
+    $status = 0;
+
+  }
+
 }

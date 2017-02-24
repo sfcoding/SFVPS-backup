@@ -20,7 +20,8 @@ use strict;
 sub load_email_addresses; sub sendmail; sub main;
 
 my $cfile = "/root/.mailbotrc";
-my $logfile = "/var/log/backup-mega-test.log";
+my $logfiletests = "/var/log/backup-mega-test.log";
+my $logfile = "/var/log/backup-mega.log";
 my $to; # my $to = 'address1@gmail.com,address2@gmail.com,address3@gmail.it';
 
 my %dest;
@@ -57,24 +58,23 @@ sub load_email_addresses {
 
 	close CFILE or die "Could not close config file$!";
 	
-	# print "$_ : $dest{$_}\n" for (keys %dest);
-
 }
 
 
 
 sub sendmail {
 
-	my $logs = `tail -50 $logfile`;
+	my $testlogs = `tail -50 $logfiletests`;
+        my $bcklogs = `tail -50 $logfile`;
 
 	my $from = 'no-reply@sfcoding.com';
-	my $subject = '[SFvps] BACKUP TESTS FAILED';
+	my $subject = '[SFvps] BACKUP ISSUES';
 
 	my $message =  
 	"Hi $name! This message was sent to notify the System Admin.\n\n
-	Possibly some tests about backups on MEGA have failed :(\n\n
-	Please check /var/log/backup-mega-test.log on the vps for further details.\n\n
-	Cheers\n\n P.s.: hereby an extract of the log\n\n$logs";
+	Possibly something with tests or the actual script about backups on MEGA have failed :(\n\n
+	Please check /var/log/backup-mega-test.log and /var/log/backup-mega.log on the vps for further details.\n\n
+	Cheers\n\n P.s.: hereby an extract of the logs\n\n$testlogs\n\n$bcklogs";
 	 
 	open(MAIL, "|/usr/sbin/sendmail -t");
 	 
