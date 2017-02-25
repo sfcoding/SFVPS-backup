@@ -63,7 +63,7 @@ sub perform_tests {
 
     print "\nErrors encountered while performing tests, exit.\n";
     system($^X,$abs_path."utils/PerlEmail.pl");
-    system("sfvps-admin-message","[ WARNING ] \n".localtime()."\nBCK tests issues");
+    system("sfvps-admin-message","\\[ WARNING \] \n`".localtime()."\nBCK tests issues`");
     $status = 5;
 
   } else {
@@ -95,7 +95,7 @@ sub perform_backup {
 
     print "\nErrors encountered while performing backups, exit.\n";
     system($^X,$abs_path."utils/PerlEmail.pl");
-    system("sfvps-admin-message","[ WARNING ] \n".localtime()."\nBACKUP ISSUES!");
+    system("sfvps-admin-message","\\[ WARNING \] \n`".localtime()."\nBACKUP ISSUES!`");
     $status = 5;
 
   } else {
