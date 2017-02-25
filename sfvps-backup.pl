@@ -34,8 +34,8 @@ sub main {
 
     load_cfg;
     perform_tests;
-	perform_backup;
-	exit $status
+    perform_backup;
+    exit $status
 }
 
 sub load_cfg {
@@ -63,10 +63,12 @@ sub perform_tests {
 
     print "\nErrors encountered while performing tests, exit.\n";
     system($^X,$abs_path."utils/PerlEmail.pl");
+    system("sfvps-admin-message","[ WARNING ] \n".localtime()."\nBCK tests issues");
     $status = 5;
 
   } else {
 
+    system("sfvps-admin-message","[ LOG ] \n".localtime()."\nBCK tests ok!");
     print "All test passed succesfully! You can proceed with a safe backup.\n";
     $status = 0;
 
@@ -93,11 +95,13 @@ sub perform_backup {
 
     print "\nErrors encountered while performing backups, exit.\n";
     system($^X,$abs_path."utils/PerlEmail.pl");
+    system("sfvps-admin-message","[ WARNING ] \n".localtime()."\nBACKUP ISSUES!");
     $status = 5;
 
   } else {
 
     print "Backup completed succesfully!\n";
+    system("sfvps-admin-message","[ LOG ] \n".localtime()."\nBackup looks ok!");
     $status = 0;
 
   }
