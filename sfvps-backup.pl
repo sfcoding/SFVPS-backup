@@ -68,7 +68,7 @@ sub perform_tests {
 
   } else {
 
-    system("sfvps-admin-message","[ LOG ] \n".localtime()."\nBCK tests ok!");
+    system("sfvps-admin-message","\\[ LOG \] \n".localtime()."\nBCK tests ok!");
     print "All test passed succesfully! You can proceed with a safe backup.\n";
     $status = 0;
 
@@ -101,7 +101,7 @@ sub perform_backup {
   } else {
 
     print "Backup completed succesfully!\n";
-    system("sfvps-admin-message","[ LOG ] \n".localtime()."\nBackup looks ok!");
+    system("sfvps-admin-message","\\[ LOG \] \n".localtime()."\nBackup looks ok!");
     $status = 0;
 
   }
